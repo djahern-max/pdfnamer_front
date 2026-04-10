@@ -1,0 +1,382 @@
+/* PdfNamer.module.css  –  RYZE.ai */
+
+/* ── Root ──────────────────────────────────────────────────────────────── */
+.root {
+  --ink:        #0f1117;
+  --ink-soft:   #4a5060;
+  --ink-faint:  #9aa0ae;
+  --surface:    #ffffff;
+  --surface-2:  #f4f5f7;
+  --border:     #e2e5eb;
+  --accent:     #2563eb;
+  --accent-dim: #dbeafe;
+  --green:      #16a34a;
+  --green-dim:  #dcfce7;
+  --amber:      #d97706;
+  --amber-dim:  #fef3c7;
+  --red:        #dc2626;
+  --red-dim:    #fee2e2;
+  --radius:     12px;
+  --radius-sm:  8px;
+  --shadow:     0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+
+  font-family: "DM Sans", "Helvetica Neue", sans-serif;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 20px;
+  color: var(--ink);
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.header svg {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 2px;
+}
+
+.subtitle {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+/* ── Drop zone ──────────────────────────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  background: var(--surface-2);
+  user-select: none;
+}
+
+.dropzone:hover,
+.dropzoneDragging {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.dropIcon {
+  display: block;
+  margin: 0 auto 14px;
+  width: 40px;
+  height: 40px;
+  color: var(--ink-faint);
+}
+
+.dropzoneDragging .dropIcon {
+  color: var(--accent);
+}
+
+.dropText {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+.dropHint {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* ── Loading ────────────────────────────────────────────────────────────── */
+.loadingBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Result card ────────────────────────────────────────────────────────── */
+.resultCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.resultTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeHigh   { background: var(--green-dim);  color: var(--green); }
+.badgeMedium { background: var(--amber-dim);  color: var(--amber); }
+.badgeLow    { background: var(--red-dim);    color: var(--red); }
+
+.patternNote {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.patternNote svg {
+  width: 11px;
+  height: 11px;
+  color: var(--accent);
+}
+
+/* ── Fields ─────────────────────────────────────────────────────────────── */
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  min-width: 100px;
+}
+
+.fieldLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 2px;
+}
+
+.fieldValue {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ── Name input row ─────────────────────────────────────────────────────── */
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  transition: border-color 0.15s;
+}
+
+.nameRow:focus-within {
+  border-color: var(--accent);
+}
+
+.nameIcon {
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nameIcon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.nameInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: "DM Mono", "Fira Code", monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  outline: none;
+  min-width: 0;
+}
+
+.ext {
+  font-family: "DM Mono", "Fira Code", monospace;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+
+.nameHint {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  margin: 0 0 18px;
+}
+
+/* ── Actions ────────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btnPrimary svg {
+  width: 15px;
+  height: 15px;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnPrimary:not(:disabled):hover {
+  opacity: 0.88;
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btnGhost:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
+/* ── Success ────────────────────────────────────────────────────────────── */
+.successBox {
+  text-align: center;
+  padding: 40px 24px;
+  animation: slideUp 0.25s ease;
+}
+
+.successIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: var(--green-dim);
+  color: var(--green);
+  border-radius: 50%;
+  margin: 0 auto 14px;
+}
+
+.successIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.successBox h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.savedName {
+  font-family: "DM Mono", "Fira Code", monospace;
+  font-size: 0.9rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  display: inline-block;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+.successSub {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin: 0 0 22px;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+.errorBox {
+  background: var(--red-dim);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.errorBox p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--red);
+  font-weight: 500;
+}
