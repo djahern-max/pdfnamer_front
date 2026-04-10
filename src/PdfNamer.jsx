@@ -9,7 +9,6 @@ import { useState, useRef, useCallback } from "react";
 import styles from "./PdfNamer.module.css";
 
 const API = "/api/pdf-namer";
-// ✅ Fix: read from .env (REACT_APP_API_KEY=your_key) — never hardcode secrets in source
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 // ── Icons (inline SVG, no dependency) ────────────────────────────────────────
@@ -37,6 +36,14 @@ const EditIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+const DownloadIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="3" x2="12" y2="15" />
   </svg>
 );
 
@@ -71,6 +78,7 @@ export default function PdfNamer() {
   const [confirming, setConfirming] = useState(false);
   const fileInputRef = useRef(null);
   const originalFilenameRef = useRef("");
+  const fileRef = useRef(null); // ← stores the actual File object for download
 
   // ── Upload & analyze ──────────────────────────────────────────────────────
   const analyze = useCallback(async (file) => {
@@ -80,6 +88,7 @@ export default function PdfNamer() {
       return;
     }
     originalFilenameRef.current = file.name;
+    fileRef.current = file; // ← save file for later download
     setPhase("loading");
     setResult(null);
     setErrorMsg("");
@@ -103,7 +112,7 @@ export default function PdfNamer() {
     }
   }, []);
 
-  // ── Confirm ───────────────────────────────────────────────────────────────
+  // ── Confirm & download ────────────────────────────────────────────────────
   const confirm = async () => {
     if (!result || !editedName.trim()) return;
     setConfirming(true);
@@ -118,6 +127,19 @@ export default function PdfNamer() {
         }),
       });
       if (!res.ok) throw new Error("Confirm failed");
+
+      // ── Trigger download with new filename ──────────────────────────────
+      if (fileRef.current) {
+        const url = URL.createObjectURL(fileRef.current);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${editedName.trim()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
       setPhase("confirmed");
     } catch (e) {
       setErrorMsg(e.message);
@@ -132,7 +154,7 @@ export default function PdfNamer() {
   const onDragLeave = () => { if (phase === "dragging") setPhase("idle"); };
   const onDrop = (e) => { e.preventDefault(); analyze(e.dataTransfer.files[0]); };
 
-  const reset = () => { setPhase("idle"); setResult(null); setErrorMsg(""); };
+  const reset = () => { setPhase("idle"); setResult(null); setErrorMsg(""); fileRef.current = null; };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -218,7 +240,7 @@ export default function PdfNamer() {
 
           <div className={styles.actions}>
             <button className={styles.btnPrimary} onClick={confirm} disabled={confirming}>
-              {confirming ? "Saving…" : <><CheckIcon /> Confirm &amp; save pattern</>}
+              {confirming ? "Saving…" : <><DownloadIcon /> Confirm &amp; download</>}
             </button>
             <button className={styles.btnGhost} onClick={reset}>
               Try another
