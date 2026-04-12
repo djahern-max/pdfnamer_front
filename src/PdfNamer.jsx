@@ -1,3 +1,5 @@
+
+
 /**
  * PdfNamer.jsx  –  RYZE.ai
  *
@@ -221,6 +223,7 @@ export default function PdfNamer() {
             <Field label="Date" value={result.extracted_fields.date} />
             <Field label="Amount" value={result.extracted_fields.amount ? `$${result.extracted_fields.amount}` : null} />
             <Field label="Doc type" value={result.extracted_fields.doc_type} />
+            <Field label="Invoice #" value={result.extracted_fields.invoice_number} />
           </div>
 
           <div className={styles.nameRow}>
