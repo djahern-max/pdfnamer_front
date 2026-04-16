@@ -1,0 +1,544 @@
+/* BillsReport.module.css */
+
+:root {
+    --accent: #2563eb;
+    --green: #16a34a;
+    --green-dim: #f0fdf4;
+    --ink: #111827;
+    --ink-soft: #4b5563;
+    --ink-faint: #9ca3af;
+    --surface: #ffffff;
+    --surface-2: #f9fafb;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 12px rgba(0, 0, 0, .05);
+}
+
+.root {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 3px;
+}
+
+.subtitle {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    margin: 0;
+}
+
+.headerActions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ── Loading / Error ── */
+.loadingBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 60px 0;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.errorBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 48px;
+    color: #dc2626;
+    font-size: 0.88rem;
+}
+
+/* ── Stats bar ── */
+.statsBar {
+    display: flex;
+    align-items: center;
+    padding: 14px 24px;
+    gap: 0;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.stat {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.statNum {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    line-height: 1;
+}
+
+.statLbl {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statDiv {
+    width: 1px;
+    height: 30px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.filters {
+    display: flex;
+    gap: 4px;
+}
+
+.filterBtn {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.filterBtn:hover {
+    background: var(--surface-2);
+}
+
+.filterActive {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.btnClear {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.btnClear:hover {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+}
+
+/* ── Table ── */
+.tableWrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+/* Column headers */
+.table thead tr {
+    background: var(--surface-2);
+    border-bottom: 2px solid var(--border);
+}
+
+.table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    white-space: nowrap;
+}
+
+.thCheck {
+    width: 36px;
+}
+
+.thVendor {
+    width: 200px;
+}
+
+.thDate {
+    width: 110px;
+}
+
+.thBillNo {
+    width: 130px;
+}
+
+.thAmount {
+    width: 110px;
+    text-align: right;
+}
+
+.thType {
+    width: 100px;
+}
+
+/* Vendor group header */
+.vendorRow {}
+
+.vendorHeader {
+    padding: 10px 14px 6px;
+    background: #f0f4ff;
+    border-top: 2px solid #dbeafe;
+    border-bottom: 1px solid #dbeafe;
+}
+
+.vendorName {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.86rem;
+}
+
+.vendorMeta {
+    font-size: 0.75rem;
+    color: #93c5fd;
+    margin-left: 10px;
+}
+
+/* Bill rows */
+.billRow {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+}
+
+.billRow:hover {
+    background: #f8fafc;
+}
+
+.billRowEven {
+    background: var(--surface);
+}
+
+.billRowDone {
+    opacity: 0.45;
+}
+
+.billRowDone td {
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-faint);
+}
+
+.billRowDone .typePill {
+    text-decoration: none;
+}
+
+/* Check cell */
+.checkCell {
+    padding: 10px 6px 10px 14px;
+    width: 36px;
+}
+
+.checkbox {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--green);
+}
+
+/* Copy cells */
+.copyCell {
+    padding: 10px 14px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.copyCell:hover {
+    background: #eff6ff;
+}
+
+.copyCell.empty {
+    cursor: default;
+}
+
+.copyCell.empty:hover {
+    background: transparent;
+}
+
+.cellValue {
+    display: block;
+}
+
+.tdVendor .cellValue {
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.tdDate .cellValue {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--ink-soft);
+}
+
+.tdBillNo .cellValue {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.tdAmount {
+    text-align: right;
+}
+
+.tdAmount .cellValue {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.copyIcon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--ink-faint);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.copyCell:hover .copyIcon {
+    opacity: 1;
+}
+
+.copyIcon.copied {
+    color: var(--green);
+    opacity: 1;
+}
+
+.copyIcon svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Type pill */
+.tdType {
+    padding: 10px 14px;
+}
+
+.typePill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+}
+
+.type_invoice {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.type_statement {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.type_contract {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
+.type_estimate {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.type_other {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Footer totals */
+.footRow {
+    background: var(--surface-2);
+    border-top: 2px solid var(--border);
+}
+
+.footLabel {
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+}
+
+.footAmount {
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 0.9rem;
+}
+
+/* Empty state */
+.emptyState {
+    text-align: center;
+    padding: 48px;
+    color: var(--ink-faint);
+    font-size: 0.88rem;
+}
+
+/* Buttons */
+.btnExcel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #16a34a;
+    background: #f0fdf4;
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 0.84rem;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btnExcel:hover {
+    background: #dcfce7;
+}
+
+.btnExcel:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.btnExcel svg {
+    width: 15px;
+    height: 15px;
+}
+
+.btnGhost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-weight: 500;
+    font-size: 0.84rem;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btnGhost:hover {
+    background: var(--surface-2);
+}
+
+.btnGhost svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* ── Print styles ── */
+@media print {
+
+    .header,
+    .statsBar,
+    .toolbar {
+        padding: 8px 12px;
+    }
+
+    .headerActions,
+    .filters,
+    .btnClear {
+        display: none;
+    }
+
+    .root {
+        box-shadow: none;
+        border: none;
+    }
+
+    .billRow {
+        break-inside: avoid;
+    }
+
+    .vendorRow {
+        break-inside: avoid;
+    }
+
+    .copyCell:hover {
+        background: transparent;
+    }
+
+    .copyIcon {
+        display: none;
+    }
+
+    .billRowDone {
+        display: none;
+    }
+
+    /* hide entered bills when printing */
+}
