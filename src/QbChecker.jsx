@@ -51,6 +51,16 @@ const RefreshIcon = () => (
     </svg>
 );
 
+const ExcelIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} width={16} height={16}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="8" y1="13" x2="16" y2="13" />
+        <line x1="8" y1="17" x2="16" y2="17" />
+        <line x1="10" y1="9" x2="8" y2="9" />
+    </svg>
+);
+
 // ── Bill card ─────────────────────────────────────────────────────────────────
 function BillCard({ item, status }) {
     const isNeeded = status === "needs_entry";
@@ -98,6 +108,7 @@ export default function QbChecker() {
     const [errorMsg, setErrorMsg] = useState("");
     const [activeTab, setActiveTab] = useState("needs_entry");
     const fileInputRef = useRef(null);
+    const fileRef = useRef(null);
 
     const compare = useCallback(async (file) => {
         if (!file || !file.name.toLowerCase().match(/\.xlsx?$/)) {
@@ -106,6 +117,7 @@ export default function QbChecker() {
             return;
         }
 
+        fileRef.current = file;
         setPhase("loading");
         setResult(null);
         setErrorMsg("");
@@ -137,6 +149,31 @@ export default function QbChecker() {
     const onDragLeave = () => { if (phase === "dragging") setPhase("idle"); };
     const onDrop = (e) => { e.preventDefault(); compare(e.dataTransfer.files[0]); };
     const reset = () => { setPhase("idle"); setResult(null); setErrorMsg(""); };
+
+    const exportToExcel = async () => {
+        if (!fileRef.current) return;
+        const form = new FormData();
+        form.append("file", fileRef.current);
+        try {
+            const res = await fetch(`${API}/export.xlsx`, {
+                method: "POST",
+                headers: { "X-API-Key": API_KEY },
+                body: form,
+            });
+            if (!res.ok) throw new Error("Export failed");
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `QB_Checker_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error("Export error:", e);
+        }
+    };
 
     return (
         <div className={styles.root}>
@@ -265,6 +302,13 @@ export default function QbChecker() {
                                 }
                             </div>
                         </>
+                    )}
+
+                    {/* Export button */}
+                    {result.needs_entry.length > 0 && (
+                        <button className={styles.btnExport} onClick={exportToExcel}>
+                            <ExcelIcon /> Export to Excel
+                        </button>
                     )}
 
                     {/* Re-upload button */}

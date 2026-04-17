@@ -410,6 +410,29 @@
     padding: 32px 0;
 }
 
+/* Export button */
+.btnExport {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 10px;
+    margin-right: 8px;
+}
+
+.btnExport:hover {
+    background: #15803d;
+}
+
 /* Refresh button */
 .btnRefresh {
     display: flex;
