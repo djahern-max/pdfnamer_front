@@ -1,0 +1,70 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 56px;
+    background: #1e3a5f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+    letter-spacing: 0.01em;
+}
+
+.logoIcon {
+    font-size: 1.2rem;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+}
+
+.pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    padding: 0.28rem 0.9rem;
+    font-size: 0.8rem;
+}
+
+.pillLabel {
+    color: #93c5fd;
+    font-weight: 500;
+}
+
+.pillValue {
+    color: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.pillDivider {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.pillSub {
+    color: #bfdbfe;
+    font-variant-numeric: tabular-nums;
+}
+
+.pillLoading {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-style: italic;
+}
