@@ -108,8 +108,8 @@ function VendorGroup({ vendor, bills, checked, onToggle }) {
                             />
                         </td>
                         <CopyCell value={bill.vendor} className={styles.tdVendor} />
-                        <CopyCell value={bill.bill_date} className={styles.tdDate} />
-                        <CopyCell value={bill.bill_no} className={styles.tdBillNo} />
+                        <CopyCell value={bill.doc_date} className={styles.tdDate} />
+                        <CopyCell value={bill.invoice_number} className={styles.tdBillNo} />
                         <CopyCell
                             value={bill.amount
                                 ? `$${parseFloat(bill.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
@@ -129,24 +129,28 @@ function VendorGroup({ vendor, bills, checked, onToggle }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
+
+const TODAY = new Date().toISOString().slice(0, 10);
+
 export default function BillsReport() {
     const [phase, setPhase] = useState("loading");
     const [data, setData] = useState(null);
     const [errorMsg, setErrorMsg] = useState("");
-    const [filter, setFilter] = useState("all"); // all | pending | done
+    const [filter, setFilter] = useState("all");
+    const [mode, setMode] = useState("today"); // "today" | "all"
     const [checked, setChecked] = useState(() => {
         try { return new Set(JSON.parse(localStorage.getItem("bills_checked") || "[]")); }
         catch { return new Set(); }
     });
 
-    // ── Load ─────────────────────────────────────────────────────────────
-    const load = async () => {
+    const load = async (loadMode = mode) => {
         setPhase("loading");
         setErrorMsg("");
         try {
-            const res = await fetch(`${API}/pending`, {
-                headers: { "X-API-Key": API_KEY },
-            });
+            const url = loadMode === "today"
+                ? `${API}/pending?since=${TODAY}`
+                : `${API}/pending`;
+            const res = await fetch(url, { headers: { "X-API-Key": API_KEY } });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err.detail ?? `Server error ${res.status}`);
@@ -161,6 +165,11 @@ export default function BillsReport() {
 
     useEffect(() => { load(); }, []);
 
+    const switchMode = (newMode) => {
+        setMode(newMode);
+        setFilter("all");
+        load(newMode);
+    };
     // ── Export ───────────────────────────────────────────────────────────
     const exportToExcel = () => {
         fetch(`${API}/export.xlsx`, { headers: { "X-API-Key": API_KEY } })
@@ -193,7 +202,7 @@ export default function BillsReport() {
     // ── Derived state ────────────────────────────────────────────────────
     const groupedBills = () => {
         if (!data) return {};
-        const bills = data.bills.filter(b => {
+        const bills = data.filter(b => {
             if (filter === "pending") return !checked.has(b.confirmed_name);
             if (filter === "done") return checked.has(b.confirmed_name);
             return true;
@@ -208,12 +217,12 @@ export default function BillsReport() {
 
     const groups = groupedBills();
     const vendors = Object.keys(groups).sort();
-    const doneCount = data ? data.bills.filter(b => checked.has(b.confirmed_name)).length : 0;
-    const pendingCount = data ? data.bills.length - doneCount : 0;
-    const remaining = data ? data.bills
+    const doneCount = data ? data.filter(b => checked.has(b.confirmed_name)).length : 0;
+    const pendingCount = data ? data.length - doneCount : 0;
+    const remaining = data ? data
         .filter(b => !checked.has(b.confirmed_name))
         .reduce((s, b) => s + parseFloat(b.amount || 0), 0) : 0;
-
+    const totalAmount = data ? data.reduce((s, b) => s + parseFloat(b.amount || 0), 0) : 0;
     // ── Render ───────────────────────────────────────────────────────────
     return (
         <div className={styles.root}>
@@ -279,22 +288,40 @@ export default function BillsReport() {
                         <div className={styles.statDiv} />
                         <div className={styles.stat}>
                             <span className={styles.statNum}>
-                                ${data.total_amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                                ${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                             </span>
                             <span className={styles.statLbl}>Total</span>
                         </div>
                     </div>
 
                     {/* Toolbar */}
+                    {/* Toolbar */}
+                    {/* Toolbar */}
                     <div className={styles.toolbar}>
-                        <div className={styles.filters}>
-                            {[["all", "All"], ["pending", "Remaining"], ["done", "Entered"]].map(([v, l]) => (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ display: 'flex', gap: 4, marginRight: 12, borderRight: '1px solid var(--border)', paddingRight: 12 }}>
                                 <button
-                                    key={v}
-                                    className={`${styles.filterBtn} ${filter === v ? styles.filterActive : ""}`}
-                                    onClick={() => setFilter(v)}
-                                >{l}</button>
-                            ))}
+                                    className={`${styles.filterBtn} ${mode === 'today' ? styles.filterActive : ''}`}
+                                    onClick={() => switchMode('today')}
+                                >
+                                    Today
+                                </button>
+                                <button
+                                    className={`${styles.filterBtn} ${mode === 'all' ? styles.filterActive : ''}`}
+                                    onClick={() => switchMode('all')}
+                                >
+                                    All
+                                </button>
+                            </div>
+                            <div className={styles.filters}>
+                                {[["all", "All"], ["pending", "Remaining"], ["done", "Entered"]].map(([v, l]) => (
+                                    <button
+                                        key={v}
+                                        className={`${styles.filterBtn} ${filter === v ? styles.filterActive : ""}`}
+                                        onClick={() => setFilter(v)}
+                                    >{l}</button>
+                                ))}
+                            </div>
                         </div>
                         {doneCount > 0 && (
                             <button className={styles.btnClear} onClick={clearChecked}>
