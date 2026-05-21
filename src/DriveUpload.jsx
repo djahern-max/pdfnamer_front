@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import styles from "./DriveUpload.module.css";
 
-const API = "";
+const API = "/api/drive";
 const API_KEY = process.env.REACT_APP_API_KEY;
 const HEADERS = { "X-API-Key": API_KEY };
 
@@ -128,14 +128,19 @@ export default function DriveUpload() {
     const fileInputRef = useRef(null);
 
     const onFilesSelected = useCallback(async (rawFiles) => {
+        console.log("onFilesSelected fired, raw count:", rawFiles.length);
         const pdfs = Array.from(rawFiles).filter((f) => f.name.toLowerCase().endsWith(".pdf"));
+        console.log("PDFs found:", pdfs.map(f => f.name));
         if (!pdfs.length) { setErrorMsg("No PDF files found."); setPhase("error"); return; }
         setPhase("parsing");
         setErrorMsg("");
         try {
-            const res = await fetch(`${API}/api/drive/vendor-folders`, { headers: HEADERS });
+            console.log("Fetching vendor folders from:", `${API}/api/drive/vendor-folders`);
+            const res = await fetch(`${API}/vendor-folders`, { headers: HEADERS });
+            console.log("Vendor folders response status:", res.status);
             if (!res.ok) throw new Error(`Drive folder fetch failed (${res.status})`);
             const data = await res.json();
+            console.log("Folders returned:", data);
             const folders = data.folders ?? [];
             const parsed = pdfs.map((f) => {
                 const vendor = extractVendorFromFilename(f.name);
@@ -147,7 +152,11 @@ export default function DriveUpload() {
             setMissingVendors(missing);
             setPendingCreate(missing);
             setPhase(missing.length > 0 ? "confirm-missing" : "review");
-        } catch (e) { setErrorMsg(e.message); setPhase("error"); }
+        } catch (e) {
+            console.error("onFilesSelected error:", e);
+            setErrorMsg(e.message);
+            setPhase("error");
+        }
     }, []);
 
     const toggleVendorCreate = (vendor) => {
@@ -160,7 +169,7 @@ export default function DriveUpload() {
         const created = [];
         for (const vendor of pendingCreate) {
             try {
-                const res = await fetch(`${API}/api/drive/create-vendor-folder`, {
+                const res = await fetch(`${API}/create-vendor-folder`, {
                     method: "POST",
                     headers: { ...HEADERS, "Content-Type": "application/json" },
                     body: JSON.stringify({ vendor_name: vendor }),

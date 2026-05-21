@@ -2,23 +2,23 @@
 
 /* ── Root ──────────────────────────────────────────────────────────────── */
 .root {
-  --ink:        #0f1117;
-  --ink-soft:   #4a5060;
-  --ink-faint:  #9aa0ae;
-  --surface:    #ffffff;
-  --surface-2:  #f4f5f7;
-  --border:     #e2e5eb;
-  --accent:     #2563eb;
+  --ink: #0f1117;
+  --ink-soft: #4a5060;
+  --ink-faint: #9aa0ae;
+  --surface: #ffffff;
+  --surface-2: #f4f5f7;
+  --border: #e2e5eb;
+  --accent: #2563eb;
   --accent-dim: #dbeafe;
-  --green:      #16a34a;
-  --green-dim:  #dcfce7;
-  --amber:      #d97706;
-  --amber-dim:  #fef3c7;
-  --red:        #dc2626;
-  --red-dim:    #fee2e2;
-  --radius:     12px;
-  --radius-sm:  8px;
-  --shadow:     0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --green: #16a34a;
+  --green-dim: #dcfce7;
+  --amber: #d97706;
+  --amber-dim: #fef3c7;
+  --red: #dc2626;
+  --red-dim: #fee2e2;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 4px 16px rgba(0, 0, 0, .06);
 
   font-family: "DM Sans", "Helvetica Neue", sans-serif;
   max-width: 560px;
@@ -124,7 +124,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Result card ────────────────────────────────────────────────────────── */
@@ -138,8 +140,15 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .resultTop {
@@ -160,9 +169,20 @@
   letter-spacing: 0.04em;
 }
 
-.badgeHigh   { background: var(--green-dim);  color: var(--green); }
-.badgeMedium { background: var(--amber-dim);  color: var(--amber); }
-.badgeLow    { background: var(--red-dim);    color: var(--red); }
+.badgeHigh {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.badgeMedium {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.badgeLow {
+  background: var(--red-dim);
+  color: var(--red);
+}
 
 .patternNote {
   display: flex;
@@ -380,3 +400,118 @@
   color: var(--red);
   font-weight: 500;
 }
+
+/* ── Job name row — append to PdfNamer.module.css ── */
+
+/* ── Append these to PdfNamer.module.css ── */
+
+/* Job name row */
+.jobRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.jobIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--ink-faint);
+}
+
+.jobIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.jobInput {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.jobInput::placeholder {
+  color: var(--ink-faint);
+}
+
+.jobInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Confirmed box */
+.confirmedBox {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.confirmedIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: #dcfce7;
+  color: #16a34a;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 auto 14px;
+}
+
+.confirmedTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.confirmedName {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 6px 14px;
+  display: inline-block;
+  margin: 0 0 10px;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.confirmedJob {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+
+.confirmedJob svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.confirmedSub {
+  font-size: 0.78rem;
+  color: #16a34a;
+  margin: 0 0 20px;
+}
+
+.confirmedSubWarn {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  margin: 0 0 20px;
+}
+
+/* Saving spinner reuses .loadingBox — no extra CSS needed */
