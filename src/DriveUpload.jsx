@@ -83,11 +83,6 @@ function extractVendorFromFilename(filename) {
     return vendorParts.join(" ");
 }
 
-function findMatchingFolder(vendorName, folders) {
-    const norm = (s) => s.toLowerCase().replace(/_/g, " ").trim();
-    return folders.find((f) => norm(f.name) === norm(vendorName)) ?? null;
-}
-
 function FileRow({ item }) {
     const rowClass = item.status === "done" ? styles.rowDone
         : item.status === "uploading" ? styles.rowUploading
@@ -128,23 +123,21 @@ export default function DriveUpload() {
     const fileInputRef = useRef(null);
 
     const onFilesSelected = useCallback(async (rawFiles) => {
-        console.log("onFilesSelected fired, raw count:", rawFiles.length);
         const pdfs = Array.from(rawFiles).filter((f) => f.name.toLowerCase().endsWith(".pdf"));
-        console.log("PDFs found:", pdfs.map(f => f.name));
         if (!pdfs.length) { setErrorMsg("No PDF files found."); setPhase("error"); return; }
         setPhase("parsing");
         setErrorMsg("");
         try {
-            console.log("Fetching vendor folders from:", `${API}/api/drive/vendor-folders`);
             const res = await fetch(`${API}/vendor-folders`, { headers: HEADERS });
-            console.log("Vendor folders response status:", res.status);
             if (!res.ok) throw new Error(`Drive folder fetch failed (${res.status})`);
             const data = await res.json();
-            console.log("Folders returned:", data);
             const folders = data.folders ?? [];
             const parsed = pdfs.map((f) => {
                 const vendor = extractVendorFromFilename(f.name);
-                const folderMatch = findMatchingFolder(vendor, folders);
+                const folderMatch = folders.find(
+                    (folder) => folder.name.toLowerCase().replace(/_/g, " ").trim() ===
+                        vendor.toLowerCase().replace(/_/g, " ").trim()
+                ) ?? null;
                 return { filename: f.name, file: f, vendor, folderMatch, status: null, link: null, error: null };
             });
             setFiles(parsed);
@@ -153,7 +146,6 @@ export default function DriveUpload() {
             setPendingCreate(missing);
             setPhase(missing.length > 0 ? "confirm-missing" : "review");
         } catch (e) {
-            console.error("onFilesSelected error:", e);
             setErrorMsg(e.message);
             setPhase("error");
         }
@@ -166,27 +158,19 @@ export default function DriveUpload() {
     const proceedFromConfirm = async () => {
         setPhase("review");
         if (pendingCreate.length === 0) return;
-        const created = [];
         for (const vendor of pendingCreate) {
             try {
-                const res = await fetch(`${API}/create-vendor-folder`, {
+                await fetch(`${API}/create-vendor-folder`, {
                     method: "POST",
                     headers: { ...HEADERS, "Content-Type": "application/json" },
                     body: JSON.stringify({ vendor_name: vendor }),
                 });
-                if (!res.ok) throw new Error(`Failed to create folder for ${vendor}`);
-                created.push(await res.json());
             } catch (e) { console.error(e); }
         }
-        setFiles((prev) => prev.map((f) => {
-            if (f.folderMatch) return f;
-            const newFolder = created.find((c) => c.name.toLowerCase() === f.vendor.toLowerCase());
-            return newFolder ? { ...f, folderMatch: newFolder } : f;
-        }));
     };
 
     const startUpload = async () => {
-        const toUpload = files.filter((f) => f.folderMatch && !f.status);
+        const toUpload = files.filter((f) => !f.status);
         if (!toUpload.length) return;
         setPhase("uploading");
         setUploadProgress({ done: 0, total: toUpload.length });
@@ -196,8 +180,8 @@ export default function DriveUpload() {
             try {
                 const form = new FormData();
                 form.append("file", item.file, item.filename);
-                form.append("folder_id", item.folderMatch.id);
-                const res = await fetch(`${API}/api/drive/upload-file`, { method: "POST", headers: HEADERS, body: form });
+                form.append("vendor_name", item.vendor);  // ← fixed
+                const res = await fetch(`${API}/upload-file`, { method: "POST", headers: HEADERS, body: form });  // ← fixed URL
                 if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.detail ?? "Upload failed"); }
                 const result = await res.json();
                 done++;
@@ -220,10 +204,9 @@ export default function DriveUpload() {
     const onDrop = (e) => { e.preventDefault(); if (e.dataTransfer.files.length) onFilesSelected(e.dataTransfer.files); };
     const onDragOver = (e) => e.preventDefault();
 
-    const readyCount = files.filter((f) => f.folderMatch && !f.status).length;
+    const readyCount = files.filter((f) => !f.status).length;
     const doneCount = files.filter((f) => f.status === "done").length;
     const errorCount = files.filter((f) => f.status === "error").length;
-    const skippedCount = files.filter((f) => !f.folderMatch).length;
 
     return (
         <div className={styles.root}>
@@ -239,7 +222,7 @@ export default function DriveUpload() {
                 <div className={styles.dropzone} onDrop={onDrop} onDragOver={onDragOver}
                     onClick={() => fileInputRef.current?.click()} role="button" tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}>
-                    <input ref={fileInputRef} type="file" accept=".pdf" multiple
+                    <input ref={fileInputRef} type="file" accept=".pdf,.PDF" multiple
                         className={styles.hiddenInput} onChange={(e) => onFilesSelected(e.target.files)} />
                     <UploadIcon />
                     <p className={styles.dropTitle}>Select <strong>PDF invoices</strong> to upload</p>
@@ -279,14 +262,22 @@ export default function DriveUpload() {
             {(phase === "review" || phase === "uploading" || phase === "done") && (
                 <div className={styles.card}>
                     <div className={styles.stats}>
-                        <div className={styles.stat}><span className={styles.statNum}>{files.length}</span><span className={styles.statLabel}>Total PDFs</span></div>
+                        <div className={styles.stat}>
+                            <span className={styles.statNum}>{files.length}</span>
+                            <span className={styles.statLabel}>Total PDFs</span>
+                        </div>
                         <div className={styles.statDivider} />
                         <div className={styles.stat}>
                             <span className={styles.statNum} style={{ color: "var(--green)" }}>{doneCount || readyCount}</span>
                             <span className={styles.statLabel}>{doneCount ? "Uploaded" : "Ready"}</span>
                         </div>
-                        {skippedCount > 0 && <><div className={styles.statDivider} /><div className={styles.stat}><span className={styles.statNum} style={{ color: "var(--amber)" }}>{skippedCount}</span><span className={styles.statLabel}>No Folder</span></div></>}
-                        {errorCount > 0 && <><div className={styles.statDivider} /><div className={styles.stat}><span className={styles.statNum} style={{ color: "var(--red)" }}>{errorCount}</span><span className={styles.statLabel}>Failed</span></div></>}
+                        {errorCount > 0 && <>
+                            <div className={styles.statDivider} />
+                            <div className={styles.stat}>
+                                <span className={styles.statNum} style={{ color: "var(--red)" }}>{errorCount}</span>
+                                <span className={styles.statLabel}>Failed</span>
+                            </div>
+                        </>}
                     </div>
 
                     {phase === "uploading" && (
@@ -299,7 +290,7 @@ export default function DriveUpload() {
                     {phase === "done" && (
                         <div className={styles.doneBanner}>
                             <CheckIcon />
-                            <span>{doneCount} file{doneCount !== 1 ? "s" : ""} uploaded to Google Drive{errorCount > 0 && ` · ${errorCount} failed`}{skippedCount > 0 && ` · ${skippedCount} skipped (no folder)`}</span>
+                            <span>{doneCount} file{doneCount !== 1 ? "s" : ""} uploaded to Google Drive{errorCount > 0 && ` · ${errorCount} failed`}</span>
                         </div>
                     )}
 

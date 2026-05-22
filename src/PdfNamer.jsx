@@ -86,7 +86,7 @@ export default function PdfNamer() {
 
   // ── Analyze ───────────────────────────────────────────────────────────────
   const analyze = useCallback(async (file) => {
-    if (!file || !file.name.toLowerCase().endsWith(".pdf")) {
+    if (!file || (!file.name.toLowerCase().endsWith(".pdf") && !file.name.toUpperCase().endsWith(".PDF"))) {
       setErrorMsg("Please upload a PDF file.");
       setPhase("error");
       return;
@@ -216,7 +216,7 @@ export default function PdfNamer() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".pdf"
+            accept=".pdf,.PDF"
             className={styles.hiddenInput}
             onChange={(e) => analyze(e.target.files[0])}
           />

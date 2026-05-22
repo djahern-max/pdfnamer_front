@@ -1,0 +1,372 @@
+.root {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-muted, #94a3b8);
+    margin: 0.125rem 0 0;
+}
+
+/* ── Dropzone ── */
+.dropzone {
+    border: 2px dashed var(--border, #334155);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: var(--surface, #0f172a);
+    color: var(--text-muted, #94a3b8);
+}
+
+.dropzone:hover {
+    border-color: var(--accent, #6366f1);
+    background: var(--surface-hover, #1e293b);
+    color: var(--text-primary, #f1f5f9);
+}
+
+.hiddenInput {
+    display: none;
+}
+
+.dropTitle {
+    font-size: 0.9375rem;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0;
+}
+
+.dropHint {
+    font-size: 0.75rem;
+    color: var(--text-muted, #94a3b8);
+    margin: 0;
+}
+
+/* ── Loading ── */
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.875rem;
+}
+
+/* ── Card ── */
+.card {
+    background: var(--surface, #0f172a);
+    border: 1px solid var(--border, #1e293b);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ── Stats row ── */
+.stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border, #1e293b);
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+}
+
+.statNum {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 0.6875rem;
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.statDivider {
+    width: 1px;
+    height: 2rem;
+    background: var(--border, #1e293b);
+}
+
+/* ── Progress ── */
+.progressWrap {
+    position: relative;
+    height: 6px;
+    background: var(--border, #1e293b);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.progressBar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--accent, #6366f1);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+}
+
+.progressLabel {
+    position: absolute;
+    right: 0;
+    top: -1.25rem;
+    font-size: 0.6875rem;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* ── Done banner ── */
+.doneBanner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--green, #22c55e) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--green, #22c55e) 30%, transparent);
+    border-radius: 8px;
+    color: var(--green, #22c55e);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ── Warn banner ── */
+.warnBanner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--amber, #f59e0b) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--amber, #f59e0b) 30%, transparent);
+    border-radius: 8px;
+    color: var(--amber, #f59e0b);
+    font-size: 0.875rem;
+}
+
+/* ── Missing vendor list ── */
+.missingList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.missingItem {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    background: var(--surface-hover, #1e293b);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-primary, #f1f5f9);
+}
+
+.checkbox {
+    accent-color: var(--accent, #6366f1);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.confirmActions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ── File list ── */
+.fileList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.fileRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border, #1e293b);
+    transition: background 0.1s;
+}
+
+.rowReady {
+    background: var(--surface-hover, #1e293b);
+}
+
+.rowUploading {
+    background: color-mix(in srgb, var(--accent, #6366f1) 8%, transparent);
+}
+
+.rowDone {
+    background: color-mix(in srgb, var(--green, #22c55e) 8%, transparent);
+}
+
+.rowError {
+    background: color-mix(in srgb, var(--red, #ef4444) 8%, transparent);
+}
+
+.rowMissing {
+    background: color-mix(in srgb, var(--amber, #f59e0b) 8%, transparent);
+}
+
+.fileIcon {
+    flex-shrink: 0;
+}
+
+.fileMeta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.fileName {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary, #f1f5f9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fileVendor {
+    font-size: 0.6875rem;
+    color: var(--text-muted, #94a3b8);
+}
+
+.fileStatus {
+    flex-shrink: 0;
+}
+
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 99px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.statusPill[data-s="ready"] {
+    background: color-mix(in srgb, var(--accent, #6366f1) 15%, transparent);
+    color: var(--accent, #6366f1);
+}
+
+.statusPill[data-s="uploading"] {
+    background: color-mix(in srgb, var(--accent, #6366f1) 15%, transparent);
+    color: var(--accent, #6366f1);
+}
+
+.statusPill[data-s="done"] {
+    background: color-mix(in srgb, var(--green, #22c55e) 15%, transparent);
+    color: var(--green, #22c55e);
+}
+
+.statusPill[data-s="error"] {
+    background: color-mix(in srgb, var(--red, #ef4444) 15%, transparent);
+    color: var(--red, #ef4444);
+}
+
+.statusPill[data-s="missing"] {
+    background: color-mix(in srgb, var(--amber, #f59e0b) 15%, transparent);
+    color: var(--amber, #f59e0b);
+}
+
+/* ── Actions ── */
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    padding-top: 0.25rem;
+}
+
+/* ── Buttons ── */
+.btnPrimary {
+    padding: 0.625rem 1.25rem;
+    background: var(--accent, #6366f1);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.btnPrimary:hover {
+    opacity: 0.88;
+}
+
+.btnGhost {
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    color: var(--text-muted, #94a3b8);
+    border: 1px solid var(--border, #334155);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.btnGhost:hover {
+    color: var(--text-primary, #f1f5f9);
+    border-color: var(--text-muted, #94a3b8);
+}
+
+/* ── Error box ── */
+.errorBox {
+    padding: 1.25rem;
+    background: color-mix(in srgb, var(--red, #ef4444) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--red, #ef4444) 30%, transparent);
+    border-radius: 10px;
+    color: var(--red, #ef4444);
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ── Spinner ── */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 0.8s linear infinite;
+}
