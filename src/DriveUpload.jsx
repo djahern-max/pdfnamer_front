@@ -74,13 +74,13 @@ function LinkIcon() {
 function extractVendorFromFilename(filename) {
     const base = filename.replace(/\.pdf$/i, "");
     const parts = base.split("_");
-    if (parts.length < 3) return base;
+    if (parts.length < 3) return null;
     let amountIdx = -1;
     for (let i = parts.length - 1; i >= 1; i--) {
         if (/^\d+\.\d+$/.test(parts[i])) { amountIdx = i; break; }
     }
-    const vendorParts = amountIdx > 1 ? parts.slice(1, amountIdx) : parts.slice(1, parts.length - 1);
-    return vendorParts.join(" ");
+    if (amountIdx < 2) return null;
+    return parts.slice(1, amountIdx).join(" ");
 }
 
 function FileRow({ item }) {
@@ -107,7 +107,9 @@ function FileRow({ item }) {
                 {item.status === "done" && <a href={item.link} target="_blank" rel="noreferrer" className={styles.statusPill} data-s="done"><CheckIcon /> Uploaded <LinkIcon /></a>}
                 {item.status === "error" && <span className={styles.statusPill} data-s="error" title={item.error}>Failed</span>}
                 {!item.status && item.folderMatch && <span className={styles.statusPill} data-s="ready">Ready</span>}
-                {!item.status && !item.folderMatch && <span className={styles.statusPill} data-s="missing"><WarnIcon /> No folder</span>}
+                {!item.status && !item.folderMatch && item.vendor && <span className={styles.statusPill} data-s="missing"><WarnIcon /> No folder</span>}
+                {!item.status && item.dbMiss && item.vendor && <span className={styles.statusPill} data-s="warn" title="Vendor from filename parse, not DB">⚠ Parsed</span>}
+                {!item.status && !item.vendor && <span className={styles.statusPill} data-s="error">Unknown vendor</span>}
             </div>
         </div>
     );
@@ -128,20 +130,37 @@ export default function DriveUpload() {
         setPhase("parsing");
         setErrorMsg("");
         try {
-            const res = await fetch(`${API}/vendor-folders`, { headers: HEADERS });
-            if (!res.ok) throw new Error(`Drive folder fetch failed (${res.status})`);
-            const data = await res.json();
-            const folders = data.folders ?? [];
+            // Fetch Drive folders and DB vendor resolution in parallel
+            const [foldersRes, resolveRes] = await Promise.all([
+                fetch(`${API}/vendor-folders`, { headers: HEADERS }),
+                fetch(`${API}/resolve-vendors`, {
+                    method: "POST",
+                    headers: { ...HEADERS, "Content-Type": "application/json" },
+                    body: JSON.stringify({ filenames: pdfs.map((f) => f.name) }),
+                }),
+            ]);
+            if (!foldersRes.ok) throw new Error(`Drive folder fetch failed (${foldersRes.status})`);
+            if (!resolveRes.ok) throw new Error(`Vendor resolve failed (${resolveRes.status})`);
+
+            const { folders } = await foldersRes.json();
+            const resolved = await resolveRes.json(); // [{ filename, vendor }]
+            const vendorMap = Object.fromEntries(resolved.map((r) => [r.filename, r.vendor]));
+
             const parsed = pdfs.map((f) => {
-                const vendor = extractVendorFromFilename(f.name);
-                const folderMatch = folders.find(
-                    (folder) => folder.name.toLowerCase().replace(/_/g, " ").trim() ===
-                        vendor.toLowerCase().replace(/_/g, " ").trim()
-                ) ?? null;
-                return { filename: f.name, file: f, vendor, folderMatch, status: null, link: null, error: null };
+                // DB lookup first, regex fallback second, null if both fail
+                const vendor = vendorMap[f.name] ?? extractVendorFromFilename(f.name) ?? null;
+                const dbMiss = !vendorMap[f.name]; // true = not in pdf_namings
+                const folderMatch = vendor
+                    ? (folders.find(
+                        (folder) => folder.name.toLowerCase().replace(/_/g, " ").trim() ===
+                            vendor.toLowerCase().replace(/_/g, " ").trim()
+                    ) ?? null)
+                    : null;
+                return { filename: f.name, file: f, vendor, folderMatch, dbMiss, status: null, link: null, error: null };
             });
+
             setFiles(parsed);
-            const missing = [...new Set(parsed.filter((p) => !p.folderMatch).map((p) => p.vendor))];
+            const missing = [...new Set(parsed.filter((p) => !p.folderMatch && p.vendor).map((p) => p.vendor))];
             setMissingVendors(missing);
             setPendingCreate(missing);
             setPhase(missing.length > 0 ? "confirm-missing" : "review");

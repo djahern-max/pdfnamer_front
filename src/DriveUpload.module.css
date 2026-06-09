@@ -370,3 +370,8 @@
 .spin {
     animation: spin 0.8s linear infinite;
 }
+
+.statusPill[data-s="warn"] {
+    background: var(--amber-bg, #fff8e1);
+    color: var(--amber, #b45309);
+}
