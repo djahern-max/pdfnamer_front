@@ -5,6 +5,7 @@ import QbChecker from './QbChecker';
 import Organizer from './Organizer';
 import BillsReport from './BillsReport';
 import DriveUpload from './DriveUpload';
+import Settings from './Settings';
 
 function App() {
   const [tab, setTab] = useState('pdf');
@@ -14,7 +15,8 @@ function App() {
     { id: 'qb', label: 'QB Checker' },
     { id: 'organizer', label: 'Organizer' },
     { id: 'bills', label: 'Bills to Enter' },
-    { id: 'drive', label: 'Archive to Drive' }
+    { id: 'drive', label: 'Archive to Drive' },
+    { id: 'settings', label: '⚙ Settings' },
   ];
 
   return (
@@ -44,6 +46,7 @@ function App() {
         {tab === 'organizer' && <Organizer />}
         {tab === 'bills' && <BillsReport />}
         {tab === 'drive' && <DriveUpload />}
+        {tab === 'settings' && <Settings />}
       </div>
     </div>
   );

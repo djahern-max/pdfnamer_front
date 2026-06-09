@@ -2,10 +2,10 @@
  * BillsReport.jsx
  *
  * Displays confirmed invoices in QuickBooks bill-entry order.
- * Click any cell to copy its value. Print-friendly layout.
+ * Checked state persisted in DB via entered_at timestamp.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./BillsReport.module.css";
 
 const API = "/api/bills-report";
@@ -137,13 +137,10 @@ export default function BillsReport() {
     const [data, setData] = useState(null);
     const [errorMsg, setErrorMsg] = useState("");
     const [filter, setFilter] = useState("all");
-    const [mode, setMode] = useState("today"); // "today" | "all"
-    const [checked, setChecked] = useState(() => {
-        try { return new Set(JSON.parse(localStorage.getItem("bills_checked") || "[]")); }
-        catch { return new Set(); }
-    });
+    const [mode, setMode] = useState("today");
+    const [checked, setChecked] = useState(new Set());
 
-    const load = async (loadMode = mode) => {
+    const load = useCallback(async (loadMode = mode) => {
         setPhase("loading");
         setErrorMsg("");
         try {
@@ -155,13 +152,16 @@ export default function BillsReport() {
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err.detail ?? `Server error ${res.status}`);
             }
-            setData(await res.json());
+            const bills = await res.json();
+            setData(bills);
+            // Derive checked state from entered_at in DB response
+            setChecked(new Set(bills.filter(b => b.entered_at).map(b => b.confirmed_name)));
             setPhase("ready");
         } catch (e) {
             setErrorMsg(e.message);
             setPhase("error");
         }
-    };
+    }, [mode]);
 
     useEffect(() => { load(); }, []);
 
@@ -170,6 +170,7 @@ export default function BillsReport() {
         setFilter("all");
         load(newMode);
     };
+
     // ── Export ───────────────────────────────────────────────────────────
     const exportToExcel = () => {
         fetch(`${API}/export.xlsx`, { headers: { "X-API-Key": API_KEY } })
@@ -184,19 +185,37 @@ export default function BillsReport() {
             });
     };
 
-    // ── Checked state ────────────────────────────────────────────────────
-    const toggleChecked = (name) => {
-        setChecked(prev => {
-            const next = new Set(prev);
-            next.has(name) ? next.delete(name) : next.add(name);
-            localStorage.setItem("bills_checked", JSON.stringify([...next]));
-            return next;
-        });
+    // ── Checked state — persisted to DB ─────────────────────────────────
+    const toggleChecked = async (name) => {
+        const isEntered = checked.has(name);
+        const endpoint = isEntered ? "unmark-entered" : "mark-entered";
+        try {
+            const res = await fetch(`${API}/${endpoint}`, {
+                method: "POST",
+                headers: { "X-API-Key": API_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({ confirmed_name: name }),
+            });
+            if (!res.ok) throw new Error("Failed to update bill status");
+            setChecked(prev => {
+                const next = new Set(prev);
+                isEntered ? next.delete(name) : next.add(name);
+                return next;
+            });
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const clearChecked = () => {
+    const clearChecked = async () => {
+        const names = [...checked];
+        await Promise.all(names.map(name =>
+            fetch(`${API}/unmark-entered`, {
+                method: "POST",
+                headers: { "X-API-Key": API_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({ confirmed_name: name }),
+            })
+        ));
         setChecked(new Set());
-        localStorage.removeItem("bills_checked");
     };
 
     // ── Derived state ────────────────────────────────────────────────────
@@ -223,6 +242,7 @@ export default function BillsReport() {
         .filter(b => !checked.has(b.confirmed_name))
         .reduce((s, b) => s + parseFloat(b.amount || 0), 0) : 0;
     const totalAmount = data ? data.reduce((s, b) => s + parseFloat(b.amount || 0), 0) : 0;
+
     // ── Render ───────────────────────────────────────────────────────────
     return (
         <div className={styles.root}>
@@ -242,7 +262,7 @@ export default function BillsReport() {
                     <button className={styles.btnGhost} onClick={() => window.print()}>
                         <PrintIcon /> Print
                     </button>
-                    <button className={styles.btnGhost} onClick={load}>
+                    <button className={styles.btnGhost} onClick={() => load()}>
                         <RefreshIcon />
                     </button>
                 </div>
@@ -260,7 +280,7 @@ export default function BillsReport() {
             {phase === "error" && (
                 <div className={styles.errorBox}>
                     <p>{errorMsg}</p>
-                    <button className={styles.btnGhost} onClick={load}>Try again</button>
+                    <button className={styles.btnGhost} onClick={() => load()}>Try again</button>
                 </div>
             )}
 
@@ -295,20 +315,18 @@ export default function BillsReport() {
                     </div>
 
                     {/* Toolbar */}
-                    {/* Toolbar */}
-                    {/* Toolbar */}
                     <div className={styles.toolbar}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ display: 'flex', gap: 4, marginRight: 12, borderRight: '1px solid var(--border)', paddingRight: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div style={{ display: "flex", gap: 4, marginRight: 12, borderRight: "1px solid var(--border)", paddingRight: 12 }}>
                                 <button
-                                    className={`${styles.filterBtn} ${mode === 'today' ? styles.filterActive : ''}`}
-                                    onClick={() => switchMode('today')}
+                                    className={`${styles.filterBtn} ${mode === "today" ? styles.filterActive : ""}`}
+                                    onClick={() => switchMode("today")}
                                 >
                                     Today
                                 </button>
                                 <button
-                                    className={`${styles.filterBtn} ${mode === 'all' ? styles.filterActive : ''}`}
-                                    onClick={() => switchMode('all')}
+                                    className={`${styles.filterBtn} ${mode === "all" ? styles.filterActive : ""}`}
+                                    onClick={() => switchMode("all")}
                                 >
                                     All
                                 </button>

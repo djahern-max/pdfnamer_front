@@ -1,0 +1,281 @@
+/* Settings.module.css */
+
+.root {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Section ── */
+.section {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    overflow: hidden;
+}
+
+.sectionHeader {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 4px;
+}
+
+.sectionSubtitle {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Add form ── */
+.addForm {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.addFields {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.fieldGroup {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fieldLabel {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+}
+
+.input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    color: #111827;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+.arrow {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.btnAdd {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    align-self: flex-start;
+}
+
+.btnAdd:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.btnAdd:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btnAdd svg {
+    width: 14px;
+    height: 14px;
+}
+
+.saveError {
+    font-size: 0.8rem;
+    color: #dc2626;
+    margin: 0;
+}
+
+/* ── Table ── */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.table thead tr {
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.table th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9ca3af;
+}
+
+.thArrow {
+    width: 32px;
+    text-align: center;
+}
+
+.thAction {
+    width: 48px;
+}
+
+.row {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.rowEven {
+    background: #fafafa;
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.tdInvoice {
+    padding: 11px 16px;
+    color: #374151;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.82rem;
+}
+
+.tdArrow {
+    padding: 11px 4px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.tdCanonical {
+    padding: 11px 16px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.tdAction {
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.btnDelete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #d1d5db;
+    padding: 4px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s, background 0.15s;
+}
+
+.btnDelete:hover:not(:disabled) {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+.btnDelete:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btnDelete svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* ── States ── */
+.loadingBox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 24px;
+    color: #6b7280;
+    font-size: 0.88rem;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.errorBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 32px;
+    color: #dc2626;
+    font-size: 0.88rem;
+}
+
+.btnGhost {
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    color: #374151;
+}
+
+.btnGhost:hover {
+    background: #f9fafb;
+}
+
+.emptyState {
+    padding: 32px 24px;
+    color: #9ca3af;
+    font-size: 0.88rem;
+    text-align: center;
+}
