@@ -7,10 +7,11 @@
  * from ~/Downloads.
  */
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import styles from "./PdfNamer.module.css";
 
 const API = "/api/pdf-namer";
+const JOBS_API = "/api/jobs";
 const API_KEY = process.env.REACT_APP_API_KEY || "";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
@@ -76,6 +77,11 @@ export default function PdfNamer() {
   const [result, setResult] = useState(null);
   const [editedName, setEditedName] = useState("");
   const [jobName, setJobName] = useState("");
+  const [isJobCost, setIsJobCost] = useState(null); // null = classify later, true = job cost, false = overhead
+  const [jobs, setJobs] = useState([]);
+  const [jobId, setJobId] = useState("");
+  const [addingJob, setAddingJob] = useState(false);
+  const [newJobName, setNewJobName] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
   const [originalDeleted, setOriginalDeleted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -123,6 +129,38 @@ export default function PdfNamer() {
     }
   }, []);
 
+  // ── Load active jobs for the cost picker ────────────────────────────────────
+  useEffect(() => {
+    fetch(`${JOBS_API}?active_only=true`, { headers: { "X-API-Key": API_KEY } })
+      .then(r => (r.ok ? r.json() : []))
+      .then(setJobs)
+      .catch(() => { });
+  }, []);
+
+  const createJob = async () => {
+    const n = newJobName.trim();
+    if (!n) return;
+    try {
+      const res = await fetch(JOBS_API, {
+        method: "POST",
+        headers: { "X-API-Key": API_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ name: n }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const created = await res.json();
+      setJobs(prev => {
+        const filtered = prev.filter(j => j.id !== created.id);
+        return [...filtered, created].sort((a, b) => a.name.localeCompare(b.name));
+      });
+      setJobId(String(created.id));
+      setNewJobName("");
+      setAddingJob(false);
+    } catch (e) {
+      console.error("Add job failed:", e);
+    }
+  };
+
+
   // ── Confirm ───────────────────────────────────────────────────────────────
   // Two sequential calls:
   //   1. /confirm  — saves DB record + learns pattern
@@ -141,7 +179,8 @@ export default function PdfNamer() {
           session_id: result.session_id,
           confirmed_name: editedName.trim(),
           original_filename: originalFilenameRef.current,
-          job_name: jobName.trim() || null,
+          is_job_cost: isJobCost,
+          job_id: isJobCost && jobId ? Number(jobId) : null,
         }),
       });
       if (!confirmRes.ok) {
@@ -187,6 +226,10 @@ export default function PdfNamer() {
     setResult(null);
     setEditedName("");
     setJobName("");
+    setIsJobCost(null);
+    setJobId("");
+    setAddingJob(false);
+    setNewJobName("");
     setSaveMsg("");
     setErrorMsg("");
     fileRef.current = null;
@@ -265,16 +308,81 @@ export default function PdfNamer() {
           </div>
 
           {/* Job name */}
-          <div className={styles.jobRow}>
+
+          {/* Cost classification */}
+          <div className={styles.classRow}>
             <span className={styles.jobIcon}><BriefcaseIcon /></span>
-            <input
-              className={styles.jobInput}
-              value={jobName}
-              onChange={(e) => setJobName(e.target.value)}
-              placeholder="Job name (optional)…"
-              spellCheck={false}
-            />
+            <div className={styles.classToggle}>
+              <button
+                type="button"
+                className={`${styles.classOption} ${isJobCost === null ? styles.classOptionActive : ""}`}
+                onClick={() => { setIsJobCost(null); setJobId(""); setAddingJob(false); }}
+              >
+                Classify later
+              </button>
+              <button
+                type="button"
+                className={`${styles.classOption} ${isJobCost === true ? styles.classOptionActive : ""}`}
+                onClick={() => setIsJobCost(true)}
+              >
+                Job cost
+              </button>
+              <button
+                type="button"
+                className={`${styles.classOption} ${isJobCost === false ? styles.classOptionActive : ""}`}
+                onClick={() => { setIsJobCost(false); setJobId(""); setAddingJob(false); }}
+              >
+                Overhead
+              </button>
+            </div>
           </div>
+
+          {isJobCost === true && (
+            <div className={styles.jobPicker}>
+              {!addingJob ? (
+                <>
+                  <select
+                    className={styles.jobSelect}
+                    value={jobId}
+                    onChange={(e) => setJobId(e.target.value)}
+                  >
+                    <option value="">Select a job…</option>
+                    {jobs.map(j => (
+                      <option key={j.id} value={j.id}>
+                        {j.name}{j.customer ? ` — ${j.customer}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <button type="button" className={styles.addJobBtn} onClick={() => setAddingJob(true)}>
+                    + Add job
+                  </button>
+                </>
+              ) : (
+                <>
+                  <input
+                    className={styles.jobInput}
+                    value={newJobName}
+                    onChange={(e) => setNewJobName(e.target.value)}
+                    placeholder="New job name…"
+                    spellCheck={false}
+                    autoFocus
+                    onKeyDown={(e) => e.key === "Enter" && createJob()}
+                  />
+                  <button type="button" className={styles.addJobBtn} onClick={createJob}>
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.cancelJobBtn}
+                    onClick={() => { setAddingJob(false); setNewJobName(""); }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
 
           {/* Filename */}
           <div className={styles.nameRow}>
@@ -293,7 +401,11 @@ export default function PdfNamer() {
           </p>
 
           <div className={styles.actions}>
-            <button className={styles.btnPrimary} onClick={confirm} disabled={confirming}>
+            <button
+              className={styles.btnPrimary}
+              onClick={confirm}
+              disabled={confirming || (isJobCost === true && !jobId)}
+            >
               {confirming ? "Saving…" : <><FolderArrowIcon /> Confirm &amp; Save</>}
             </button>
             <button className={styles.btnGhost} onClick={reset}>Start over</button>

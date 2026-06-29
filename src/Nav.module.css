@@ -1,0 +1,112 @@
+/* Nav.module.css — left sidebar navigation */
+
+.sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    position: sticky;
+    top: 56px; /* matches Header height */
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 12px 0 0;
+}
+
+/* ── Groups ── */
+.group {
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.groupLabel {
+    display: block;
+    padding: 6px 16px 4px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+/* Settings pinned at bottom */
+.bottom {
+    margin-top: auto;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 4px;
+    padding-bottom: 12px;
+}
+
+/* ── Nav item ── */
+.item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 7px 16px 7px 13px;
+    border: none;
+    border-left: 3px solid transparent;
+    background: none;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.item:hover {
+    background: #f9fafb;
+    color: #111827;
+}
+
+.itemActive {
+    border-left-color: #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.itemIcon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.itemIcon svg {
+    width: 15px;
+    height: 15px;
+}
+
+.itemLabel {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Unassigned count badge ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.67rem;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}

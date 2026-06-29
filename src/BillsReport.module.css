@@ -16,7 +16,7 @@
 }
 
 .root {
-    max-width: 860px;
+    max-width: 940px;
     margin: 0 auto;
     background: var(--surface);
     border-radius: var(--radius);
